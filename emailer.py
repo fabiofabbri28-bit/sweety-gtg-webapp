@@ -66,7 +66,7 @@ Il file "master_aggiornato.csv" va ricaricato il mese prossimo come storico.
     part_master.add_header("Content-Disposition", 'attachment; filename="master_aggiornato.csv"')
     msg.attach(part_master)
 
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
         server.ehlo()
         server.starttls()
         server.login(SMTP_EMAIL, SMTP_PASSWORD)
