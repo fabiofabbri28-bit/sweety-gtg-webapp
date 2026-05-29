@@ -260,11 +260,11 @@ def diag_smtp():
         key = f"{host}:{port}"
         try:
             start = time.time()
-            sock = socket.create_connection((host, port), timeout=5)
+            sock = socket.create_connection((host, port), timeout=3)
             sock.close()
             results[key] = f"OK ({(time.time()-start)*1000:.0f}ms)"
         except Exception as e:
-            results[key] = f"FAIL: {e}"
+            results[key] = f"FAIL: {type(e).__name__}: {e}"
     return results
 
 
