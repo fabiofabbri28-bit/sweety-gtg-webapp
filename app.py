@@ -243,5 +243,30 @@ def download(sid: str, filename: str):
     return send_file(path, as_attachment=True, download_name=filename)
 
 
+@app.route("/diag-smtp")
+def diag_smtp():
+    """Endpoint temporaneo per diagnosticare connettività SMTP da Render."""
+    import socket, ssl, time
+    results = {}
+    targets = [
+        ("smtp.gmail.com", 587),
+        ("smtp.gmail.com", 465),
+        ("smtp-relay.brevo.com", 587),
+        ("smtp.sendgrid.net", 587),
+        ("smtp2go.smtp2go.com", 2525),
+        ("8.8.8.8", 443),
+    ]
+    for host, port in targets:
+        key = f"{host}:{port}"
+        try:
+            start = time.time()
+            sock = socket.create_connection((host, port), timeout=5)
+            sock.close()
+            results[key] = f"OK ({(time.time()-start)*1000:.0f}ms)"
+        except Exception as e:
+            results[key] = f"FAIL: {e}"
+    return results
+
+
 if __name__ == "__main__":
     app.run(debug=True)
