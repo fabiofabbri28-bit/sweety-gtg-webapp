@@ -1,82 +1,69 @@
 """
-Invio email con allegati tramite SMTP Gmail.
+Invio email con allegati via Resend API (HTTPS) — SMTP bloccato su Render free tier.
 """
 import os
-import socket
-import ssl
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email import encoders
+import base64
+import requests
 
-SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 587
-SMTP_EMAIL = os.environ.get("SMTP_EMAIL", "")
-SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+SMTP_EMAIL = os.environ.get("SMTP_EMAIL", "amministrazione.swt@gmail.com")
 CONFIRM_EMAIL = os.environ.get("CONFIRM_EMAIL", "directionsweetypactsrl@gmail.com")
 
-
-def _get_smtp_ipv4() -> str:
-    """Risolve smtp.gmail.com in IPv4 per evitare problemi di routing IPv6."""
-    results = socket.getaddrinfo(SMTP_HOST, 465, socket.AF_INET, socket.SOCK_STREAM)
-    return results[0][4][0]
+RESEND_API_URL = "https://api.resend.com/emails"
+FROM_ADDRESS = "Sweety GTG <onboarding@resend.dev>"
 
 
 def send_confirmation(period_label: str, totals: dict,
                       confirmed: list, docs: dict,
                       master_bytes: bytes) -> None:
     """
-    Invia email di conferma con:
-    - corpo riepilogativo
-    - tutti i documenti allegati
-    - master aggiornato allegato (per il mese prossimo)
+    Invia email di conferma via Resend con tutti i documenti allegati.
     """
-    msg = MIMEMultipart()
-    msg["From"] = SMTP_EMAIL
-    msg["To"] = CONFIRM_EMAIL
-    msg["Subject"] = f"✅ Conferma fatturazione {period_label}"
+    if not RESEND_API_KEY:
+        raise ValueError("RESEND_API_KEY non configurata — vai su Render > Environment")
 
-    # Corpo email
     si_list = "\n".join(
-        f"  • {c['nome']} ({c['n_macchine']} macch. → €{c['importo']:,})".replace(",", ".")
+        f"  - {c['nome']} ({c['n_macchine']} macch. -> {c['importo']} EUR)"
         for c in confirmed
     )
-    body = f"""Revisione fatturazione confermata per {period_label}.
+    body = (
+        f"Revisione fatturazione confermata per {period_label}.\n\n"
+        f"CLIENTI CONFERMATI ({len(confirmed)}):\n{si_list}\n\n"
+        f"RIEPILOGO:\n"
+        f"  Fee fissa:          {totals['fixed_fee']} EUR\n"
+        f"  Totale variabile:   {totals['variabile']} EUR  ({totals['macchine']} macchine)\n"
+        f"  TOTALE SALES:       {totals['totale_sales']} EUR\n"
+        f"  TOTALE ADMIN:       {totals['totale_admin']} EUR\n\n"
+        f"I documenti sono allegati a questa email.\n"
+        f"Il file 'master_aggiornato.csv' va ricaricato il mese prossimo come storico.\n"
+    )
 
-CLIENTI CONFERMATI ({len(confirmed)}):
-{si_list}
-
-RIEPILOGO:
-  Fee fissa:          €{totals['fixed_fee']:,}
-  Totale variabile:   €{totals['variabile']:,}  ({totals['macchine']} macchine)
-  TOTALE SALES:       €{totals['totale_sales']:,}
-  TOTALE ADMIN:       €{totals['totale_admin']:,}
-
-I documenti sono allegati a questa email.
-Il file "master_aggiornato.csv" va ricaricato il mese prossimo come storico.
-""".replace(",", ".")
-
-    msg.attach(MIMEText(body, "plain", "utf-8"))
-
-    # Allega documenti generati
+    attachments = []
     for filename, data in docs.items():
-        part = MIMEBase("application", "octet-stream")
-        part.set_payload(data)
-        encoders.encode_base64(part)
-        part.add_header("Content-Disposition", f'attachment; filename="{filename}"')
-        msg.attach(part)
+        attachments.append({
+            "filename": filename,
+            "content": base64.b64encode(data).decode("ascii"),
+        })
+    attachments.append({
+        "filename": "master_aggiornato.csv",
+        "content": base64.b64encode(master_bytes).decode("ascii"),
+    })
 
-    # Allega master aggiornato
-    part_master = MIMEBase("application", "octet-stream")
-    part_master.set_payload(master_bytes)
-    encoders.encode_base64(part_master)
-    part_master.add_header("Content-Disposition", 'attachment; filename="master_aggiornato.csv"')
-    msg.attach(part_master)
+    payload = {
+        "from": FROM_ADDRESS,
+        "to": [CONFIRM_EMAIL],
+        "reply_to": SMTP_EMAIL,
+        "subject": f"Conferma fatturazione {period_label}",
+        "text": body,
+        "attachments": attachments,
+    }
 
-    smtp_ip = _get_smtp_ipv4()
-    ctx = ssl.create_default_context()
-    with smtplib.SMTP_SSL(smtp_ip, 465, timeout=20, context=ctx) as server:
-        server.ehlo(SMTP_HOST)
-        server.login(SMTP_EMAIL, SMTP_PASSWORD)
-        server.send_message(msg)
+    resp = requests.post(
+        RESEND_API_URL,
+        headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
+        json=payload,
+        timeout=15,
+    )
+
+    if resp.status_code not in (200, 201):
+        raise RuntimeError(f"Resend error {resp.status_code}: {resp.text[:200]}")

@@ -8,8 +8,8 @@ services:
       - key: ACCESS_CODE
         sync: false
       - key: SMTP_EMAIL
-        sync: false
-      - key: SMTP_PASSWORD
+        value: amministrazione.swt@gmail.com
+      - key: RESEND_API_KEY
         sync: false
       - key: CONFIRM_EMAIL
         value: directionsweetypactsrl@gmail.com
