@@ -76,7 +76,7 @@ Il file "master_aggiornato.csv" va ricaricato il mese prossimo come storico.
 
     smtp_ip = _get_smtp_ipv4()
     ctx = ssl.create_default_context()
-    with smtplib.SMTP_SSL(smtp_ip, 465, timeout=10, context=ctx) as server:
+    with smtplib.SMTP_SSL(smtp_ip, 465, timeout=20, context=ctx) as server:
         server.ehlo(SMTP_HOST)
         server.login(SMTP_EMAIL, SMTP_PASSWORD)
         server.send_message(msg)
