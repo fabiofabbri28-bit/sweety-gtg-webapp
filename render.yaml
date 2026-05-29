@@ -6,7 +6,7 @@ services:
     startCommand: gunicorn app:app
     envVars:
       - key: ACCESS_CODE
-        value: sweety2026
+        sync: false
       - key: SMTP_EMAIL
         sync: false
       - key: SMTP_PASSWORD
