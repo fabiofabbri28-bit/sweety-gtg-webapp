@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Revisione {{ data.period }}{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h4 class="mb-0">✏️ Revisione — {{ data.period }}</h4>
+    <small class="text-muted">{{ data.candidates|length }} clienti nuovi &nbsp;|&nbsp;
+    {{ data.n_skipped }} già fatturati (esclusi automaticamente) &nbsp;|&nbsp;
+    {{ data.n_total_gtg }} righe nel report GTG</small>
+  </div>
+</div>
+
+<form method="post" action="/confirm/{{ sid }}" id="reviewForm">
+  <input type="hidden" name="code" value="{{ code }}">
+
+  <div class="row">
+    <!-- Tabella clienti -->
+    <div class="col-lg-9">
+      <div class="card mb-3">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th style="width:50px" class="text-center">
+                  <input type="checkbox" id="selectAll" checked title="Seleziona/deseleziona tutti">
+                </th>
+                <th>Cliente</th>
+                <th class="text-center">Data</th>
+                <th class="text-center">Macchine</th>
+                <th class="text-center">Importo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in data.candidates %}
+              <tr class="client-row" data-importo="{{ c.importo }}" data-macchine="{{ c.n_macchine }}">
+                <td class="text-center align-middle">
+                  <input type="checkbox" name="selected" value="{{ c.nome }}"
+                         class="client-check" {% if c.selected %}checked{% endif %}>
+                </td>
+                <td class="align-middle">{{ c.nome }}</td>
+                <td class="text-center align-middle">{{ c.data }}</td>
+                <td class="text-center align-middle">{{ c.n_macchine }}</td>
+                <td class="text-center align-middle">€{{ "{:,}".format(c.importo).replace(",", ".") }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Riepilogo laterale -->
+    <div class="col-lg-3">
+      <div class="card p-3 mb-3 total-box">
+        <div class="text-muted small mb-2">RIEPILOGO</div>
+        <div class="d-flex justify-content-between mb-1">
+          <span>Clienti selezionati</span>
+          <strong id="n_clienti">{{ data.candidates|length }}</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-1">
+          <span>Macchine</span>
+          <strong id="n_macchine">{{ data.candidates | sum(attribute='n_macchine') }}</strong>
+        </div>
+        <hr class="my-2">
+        <div class="d-flex justify-content-between mb-1">
+          <span>Fee fissa</span>
+          <span>€{{ "{:,}".format(data.fixed_fee).replace(",",".") }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-1">
+          <span>Totale variabile</span>
+          <span id="tot_variabile">€{{ "{:,}".format(data.candidates | sum(attribute='importo')).replace(",",".") }}</span>
+        </div>
+        <hr class="my-2">
+        <div class="d-flex justify-content-between">
+          <span class="fw-bold">TOTALE SALES</span>
+          <span class="big" id="tot_sales">€0</span>
+        </div>
+        <div class="d-flex justify-content-between mt-1">
+          <span class="text-muted small">Admin</span>
+          <span class="text-muted small">€{{ "{:,}".format(data.admin_fee).replace(",",".") }}</span>
+        </div>
+      </div>
+
+      <!-- Numeri fattura -->
+      <div class="card p-3 mb-3">
+        <div class="text-muted small mb-2">NUMERI FATTURA</div>
+        <div class="mb-2">
+          <label class="form-label small">Sales Support</label>
+          <input type="text" name="invoice_sales" class="form-control form-control-sm"
+                 value="{{ invoice_sales }}" placeholder="es. 14/2026">
+        </div>
+        <div>
+          <label class="form-label small">Admin Services</label>
+          <input type="text" name="invoice_admin" class="form-control form-control-sm"
+                 value="{{ invoice_admin }}" placeholder="es. ADM-05/2026">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-success w-100">
+        ✅ Conferma e invia email
+      </button>
+      <div class="text-muted small text-center mt-2">
+        Email → {{ "directionsweetypactsrl@gmail.com" }}
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+const FIXED_FEE = {{ data.fixed_fee }};
+
+function updateTotals() {
+  const checks = document.querySelectorAll('.client-check');
+  let nClienti = 0, nMacchine = 0, variabile = 0;
+  checks.forEach(cb => {
+    if (cb.checked) {
+      const row = cb.closest('.client-row');
+      nClienti++;
+      nMacchine += parseInt(row.dataset.macchine);
+      variabile += parseInt(row.dataset.importo);
+    }
+  });
+  document.getElementById('n_clienti').textContent = nClienti;
+  document.getElementById('n_macchine').textContent = nMacchine;
+  document.getElementById('tot_variabile').textContent = '€' + variabile.toLocaleString('it-IT');
+  document.getElementById('tot_sales').textContent = '€' + (variabile + FIXED_FEE).toLocaleString('it-IT');
+}
+
+document.querySelectorAll('.client-check').forEach(cb => cb.addEventListener('change', updateTotals));
+
+document.getElementById('selectAll').addEventListener('change', function() {
+  document.querySelectorAll('.client-check').forEach(cb => cb.checked = this.checked);
+  updateTotals();
+});
+
+updateTotals();
+</script>
+{% endblock %}

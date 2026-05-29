@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Accesso{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-4">
+    <div class="card p-4">
+      <h5 class="mb-3 text-center">🔒 Accesso richiesto</h5>
+      <form method="get" action="/">
+        <div class="mb-3">
+          <input type="text" name="code" class="form-control form-control-lg text-center"
+                 placeholder="Codice accesso" autofocus>
+        </div>
+        <button class="btn btn-primary w-100">Entra</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

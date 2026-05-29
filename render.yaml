@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: sweety-gtg-webapp
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: ACCESS_CODE
+        value: sweety2026
+      - key: SMTP_EMAIL
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: CONFIRM_EMAIL
+        value: directionsweetypactsrl@gmail.com
+      - key: RATE_PER_CONTRACT
+        value: "500"
+      - key: FIXED_FEE
+        value: "1000"
+      - key: ADMIN_FEE
+        value: "300"
+      - key: SECRET_KEY
+        generateValue: true

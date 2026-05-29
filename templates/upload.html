@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Carica file{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card p-4">
+      <h4 class="mb-1">📂 Carica i file del mese</h4>
+      <p class="text-muted mb-4">Carica il report GTG e (se hai) il file storico. L'app calcola automaticamente i clienti nuovi da fatturare.</p>
+
+      {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" action="/upload" enctype="multipart/form-data">
+        <input type="hidden" name="code" value="{{ code }}">
+
+        <div class="mb-4">
+          <label class="form-label fw-bold">📄 Report GTG mensile <span class="text-danger">*</span></label>
+          <input type="file" name="gtg_csv" class="form-control" accept=".csv" required>
+          <div class="form-text">Il file CSV che ti manda GTG ogni mese (separatore ";")</div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-bold">📋 Storico clienti già fatturati <span class="text-muted fw-normal">(opzionale)</span></label>
+          <input type="file" name="storico_csv" class="form-control" accept=".csv,.xlsx">
+          <div class="form-text">Il file "master_aggiornato.csv" ricevuto nell'email del mese scorso. Se è il primo mese, lascia vuoto.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 fs-5">
+          Elabora →
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
