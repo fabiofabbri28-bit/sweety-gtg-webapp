@@ -84,15 +84,11 @@
       <div class="card p-3 mb-3">
         <div class="text-muted small mb-2">NUMERI FATTURA</div>
         <div class="mb-2">
-          <label class="form-label small">Sales Support</label>
+          <label class="form-label small">Numero fattura</label>
           <input type="text" name="invoice_sales" class="form-control form-control-sm"
                  value="{{ invoice_sales }}" placeholder="es. 14/2026">
         </div>
-        <div>
-          <label class="form-label small">Admin Services</label>
-          <input type="text" name="invoice_admin" class="form-control form-control-sm"
-                 value="{{ invoice_admin }}" placeholder="es. ADM-05/2026">
-        </div>
+        <input type="hidden" name="invoice_admin" value="{{ invoice_admin }}">
       </div>
 
       <button type="submit" class="btn btn-success w-100">

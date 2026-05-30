@@ -12,12 +12,10 @@ services:
       - key: RESEND_API_KEY
         sync: false
       - key: CONFIRM_EMAIL
-        value: directionsweetypactsrl@gmail.com
+        sync: false
       - key: RATE_PER_CONTRACT
         value: "500"
       - key: FIXED_FEE
         value: "1000"
-      - key: ADMIN_FEE
-        value: "300"
       - key: SECRET_KEY
-        generateValue: true
+        sync: false

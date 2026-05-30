@@ -39,8 +39,6 @@ def send_confirmation(period_label: str, totals: dict,
         f"  • Attivazioni operative "
         f"({totals['macchine']} macchine × 500 EUR):  {totals['variabile']} EUR\n"
         f"  • TOTALE SALES SUPPORT:                 {totals['totale_sales']} EUR\n\n"
-        f"RIEPILOGO ADMIN SERVICES{admin_line}:\n"
-        f"  • Servizi Amministrativi & Pre-contabilità:  {totals['totale_admin']} EUR\n\n"
         f"CLIENTI NUOVI CONFERMATI ({len(confirmed)}):\n{si_list}\n\n"
         f"In allegato trovate:\n"
         f"  - Lead Register {period_label}\n"

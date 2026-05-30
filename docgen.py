@@ -293,39 +293,6 @@ def generate_activity_summary(totals: dict, period: str,
         row.cells[0].width = Cm(12.5)
         row.cells[1].width = Cm(4.0)
 
-    doc.add_paragraph()
-
-    # ── Sezione 2: Administrative Services ───────────────────────────────────────
-    _add_section_heading(doc, "2.  ADMINISTRATIVE & PRE-ACCOUNTING SERVICES")
-
-    adm = doc.add_table(rows=1, cols=2)
-    adm.style = "Table Grid"
-    _set_cell_bg(adm.cell(0, 0), BLUE_MID)
-    _set_cell_bg(adm.cell(0, 1), BLUE_MID)
-    _word_cell_text(adm.cell(0, 0), "Description", bold=True, color=_WHITE)
-    _word_cell_text(adm.cell(0, 1), "Amount", bold=True, color=_WHITE,
-                    align=WD_ALIGN_PARAGRAPH.RIGHT)
-
-    adm_rows = [
-        ("Administrative & Pre-accounting Services (monthly fee)",
-         _fmt_euro(totals["totale_admin"])),
-        ("TOTAL ADMIN SERVICES",
-         _fmt_euro(totals["totale_admin"])),
-    ]
-    for i, (desc, amt) in enumerate(adm_rows):
-        row = adm.add_row()
-        is_tot = i == len(adm_rows) - 1
-        if is_tot:
-            _set_cell_bg(row.cells[0], BLUE_LIGHT)
-            _set_cell_bg(row.cells[1], BLUE_LIGHT)
-        _word_cell_text(row.cells[0], desc, bold=is_tot)
-        _word_cell_text(row.cells[1], amt,  bold=is_tot,
-                        align=WD_ALIGN_PARAGRAPH.RIGHT)
-
-    for row in adm.rows:
-        row.cells[0].width = Cm(12.5)
-        row.cells[1].width = Cm(4.0)
-
     buf = io.BytesIO()
     doc.save(buf)
     return buf.getvalue()
@@ -397,6 +364,4 @@ def generate_all(confirmed: list, totals: dict, period: str,
             totals, period, sweety, gtg),
         f"email_sales_{period}.txt": generate_email_draft_sales(
             totals, period, invoice_sales, sweety, gtg),
-        f"email_admin_{period}.txt": generate_email_draft_admin(
-            totals, period, invoice_admin, sweety, admin_contact),
     }
