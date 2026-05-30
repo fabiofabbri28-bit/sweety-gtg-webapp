@@ -38,9 +38,9 @@ def _normalize_commercial(df: pd.DataFrame) -> pd.DataFrame:
     df["Stato"] = df["Stato"].str.strip()
     out = pd.DataFrame()
     out["nome"] = df["Cliente"].str.strip()
+    out["indirizzo"] = df.get("Indirizzo", pd.Series(dtype=str)).fillna("").str.strip()
     out["data"] = pd.to_datetime(df["Data Contratto"], dayfirst=True, errors="coerce")
     out["stato_orig"] = df["Stato"]
-    # Firmato / In prova → nuovi; Attivo → già esistente
     out["is_existing"] = df["Stato"].apply(lambda s: s.strip() == "Attivo")
     return out
 
@@ -138,12 +138,20 @@ def process(gtg_bytes: bytes, gtg_filename: str,
             continue
         data_min = grp["data"].min()
         n_macchine = len(grp)
+        # Righe individuali per il Lead Register (una per macchina)
+        rows = []
+        for _, row in grp.iterrows():
+            rows.append({
+                "indirizzo": row.get("indirizzo", ""),
+                "data_ym": row["data"].strftime("%Y-%m") if pd.notna(row["data"]) else period,
+            })
         candidates.append({
             "nome": nome,
             "data": data_min.strftime("%d/%m/%Y") if pd.notna(data_min) else "",
             "n_macchine": n_macchine,
             "importo": n_macchine * RATE,
             "selected": True,
+            "rows": rows,
         })
 
     # Ordina per data

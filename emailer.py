@@ -23,19 +23,24 @@ def send_confirmation(period_label: str, totals: dict,
         raise ValueError("RESEND_API_KEY non configurata — vai su Render > Environment")
 
     si_list = "\n".join(
-        f"  - {c['nome']} ({c['n_macchine']} macch. -> {c['importo']} EUR)"
+        f"  - {c['nome']} ({c['n_macchine']} macch. → {c['importo']} EUR)"
         for c in confirmed
     )
     body = (
-        f"Revisione fatturazione confermata per {period_label}.\n\n"
+        f"Revisione fatturazione {period_label} confermata.\n\n"
         f"CLIENTI CONFERMATI ({len(confirmed)}):\n{si_list}\n\n"
-        f"RIEPILOGO:\n"
-        f"  Fee fissa:          {totals['fixed_fee']} EUR\n"
-        f"  Totale variabile:   {totals['variabile']} EUR  ({totals['macchine']} macchine)\n"
-        f"  TOTALE SALES:       {totals['totale_sales']} EUR\n"
-        f"  TOTALE ADMIN:       {totals['totale_admin']} EUR\n\n"
-        f"I documenti sono allegati a questa email.\n"
-        f"Il file 'master_aggiornato.csv' va ricaricato il mese prossimo come storico.\n"
+        f"RIEPILOGO FATTURA SALES SUPPORT:\n"
+        f"  Fee fissa mensile:          {totals['fixed_fee']} EUR\n"
+        f"  Attivazioni operative:      {totals['variabile']} EUR  ({totals['macchine']} macchine)\n"
+        f"  TOTALE SALES SUPPORT:       {totals['totale_sales']} EUR\n\n"
+        f"RIEPILOGO FATTURA ADMIN SERVICES:\n"
+        f"  TOTALE ADMIN SERVICES:      {totals['totale_admin']} EUR\n\n"
+        f"In allegato trovate:\n"
+        f"  - Lead Register {period_label}\n"
+        f"  - Activity Summary {period_label}\n"
+        f"  - Bozze email (Sales + Admin)\n"
+        f"  - Master clienti aggiornato\n\n"
+        f"IMPORTANTE: il file 'master_aggiornato.csv' va ricaricato come storico il mese prossimo.\n"
     )
 
     attachments = []

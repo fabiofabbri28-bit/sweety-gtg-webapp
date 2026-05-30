@@ -27,7 +27,8 @@ SWEETY = {
     "address_line1": os.environ.get("SWEETY_ADDR1", "MD-2025, str. Acad. Natalia Gheorghiu 30, of. 262, mun."),
     "address_line2": os.environ.get("SWEETY_ADDR2", "Chisinau, RM"),
     "cod_fiscal": os.environ.get("SWEETY_CF", "1025600056490"),
-    "email": os.environ.get("SWEETY_EMAIL", "amministrazione.swt@gmail.com"),
+    "email": os.environ.get("SWEETY_EMAIL", "info@sweetypact.com"),
+    "phone": os.environ.get("SWEETY_PHONE", "+37360045404"),
     "bank_name": os.environ.get("SWEETY_BANK", "BC MOLDINDCONBANK SA"),
     "bank_bic": os.environ.get("SWEETY_BIC", "MOLDMD2X(XXX)"),
     "bank_iban": os.environ.get("SWEETY_IBAN", "MD54ML022510000000006428"),
@@ -35,6 +36,7 @@ SWEETY = {
 GTG = {
     "name": os.environ.get("GTG_NAME", "Good to Great S.r.l."),
     "cod_fiscal": os.environ.get("GTG_CF", "48911391"),
+    "address": os.environ.get("GTG_ADDRESS", "România, comuna Arad, str. Poetului, nr.1/c, hala 21"),
 }
 ADMIN_CONTACT = {
     "name": os.environ.get("ADMIN_NAME", "Adrian"),
