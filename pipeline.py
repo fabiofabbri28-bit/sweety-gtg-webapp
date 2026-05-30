@@ -119,10 +119,12 @@ def process(gtg_bytes: bytes, gtg_filename: str,
     if storico_bytes:
         billed_set = load_storico(storico_bytes)
 
-    # Determina periodo dal CSV
+    # Determina periodo dal CSV usando il mese più frequente (non il max,
+    # che può essere distorto da date in formato ambiguo)
     dates = df["data"].dropna()
     if not dates.empty:
-        period = dates.max().strftime("%Y-%m")
+        ym = dates.dt.to_period("M")
+        period = str(ym.mode()[0])
     else:
         period = datetime.today().strftime("%Y-%m")
 

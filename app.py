@@ -209,7 +209,9 @@ def confirm(sid: str):
     email_error = None
     try:
         period_label = docgen._period_label(data["period"])
-        emailer.send_confirmation(period_label, totals, confirmed, docs, master_bytes)
+        emailer.send_confirmation(
+            period_label, totals, confirmed, docs, master_bytes,
+            invoice_sales, invoice_admin)
     except Exception as e:
         email_error = str(e)
 
