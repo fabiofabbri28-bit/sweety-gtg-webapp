@@ -26,7 +26,6 @@
                   <input type="checkbox" id="selectAll" checked title="Seleziona/deseleziona tutti">
                 </th>
                 <th>Cliente</th>
-                <th class="text-center">Data</th>
                 <th class="text-center">Macchine</th>
                 <th class="text-center">Importo</th>
               </tr>
@@ -39,7 +38,6 @@
                          class="client-check" {% if c.selected %}checked{% endif %}>
                 </td>
                 <td class="align-middle">{{ c.nome }}</td>
-                <td class="text-center align-middle">{{ c.data }}</td>
                 <td class="text-center align-middle">{{ c.n_macchine }}</td>
                 <td class="text-center align-middle">€{{ "{:,}".format(c.importo).replace(",", ".") }}</td>
               </tr>

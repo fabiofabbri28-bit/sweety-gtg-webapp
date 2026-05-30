@@ -10,7 +10,7 @@ SMTP_EMAIL     = os.environ.get("SMTP_EMAIL", "amministrazione.swt@gmail.com")
 CONFIRM_EMAIL  = os.environ.get("CONFIRM_EMAIL", "directionsweetypactsrl@gmail.com")
 
 RESEND_API_URL = "https://api.resend.com/emails"
-FROM_ADDRESS   = "Sweety GTG <onboarding@resend.dev>"
+FROM_ADDRESS   = os.environ.get("FROM_ADDRESS", "Sweety Pact <onboarding@resend.dev>")
 
 
 def send_confirmation(period_label: str, totals: dict,

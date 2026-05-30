@@ -44,6 +44,24 @@ ADMIN_CONTACT = {
 }
 
 
+_MONTHS_IT = ["","Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
+              "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"]
+
+
+def _billing_months(n: int = 6):
+    """Restituisce gli ultimi n mesi come lista di (valore, etichetta)."""
+    result = []
+    today = datetime.today()
+    year, month = today.year, today.month
+    for _ in range(n):
+        result.append((f"{year}-{month:02d}", f"{_MONTHS_IT[month]} {year}"))
+        month -= 1
+        if month == 0:
+            month = 12
+            year -= 1
+    return result
+
+
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _session_dir(sid: str) -> Path:
@@ -109,7 +127,8 @@ def index():
     if not _check_access():
         return render_template("login.html")
     _cleanup_old_sessions()
-    return render_template("upload.html", code=ACCESS_CODE)
+    return render_template("upload.html", code=ACCESS_CODE,
+                           billing_months=_billing_months())
 
 
 @app.route("/upload", methods=["POST"])
@@ -122,15 +141,18 @@ def upload():
 
     if not gtg_file or not gtg_file.filename:
         return render_template("upload.html", code=ACCESS_CODE,
+                               billing_months=_billing_months(),
                                error="Carica il report GTG mensile (obbligatorio).")
 
+    billing_period = request.form.get("billing_period", "").strip()
     gtg_bytes = gtg_file.read()
     storico_bytes = storico_file.read() if (storico_file and storico_file.filename) else None
 
     try:
-        result = pl.process(gtg_bytes, gtg_file.filename, storico_bytes)
+        result = pl.process(gtg_bytes, gtg_file.filename, storico_bytes, billing_period)
     except Exception as e:
         return render_template("upload.html", code=ACCESS_CODE,
+                               billing_months=_billing_months(),
                                error=f"Errore nel file: {e}")
 
     sid = str(uuid.uuid4())

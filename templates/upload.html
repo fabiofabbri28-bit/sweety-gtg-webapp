@@ -15,6 +15,16 @@
         <input type="hidden" name="code" value="{{ code }}">
 
         <div class="mb-4">
+          <label class="form-label fw-bold">📅 Mese di fatturazione <span class="text-danger">*</span></label>
+          <select name="billing_period" class="form-select" required>
+            {% for val, label in billing_months %}
+            <option value="{{ val }}" {% if loop.first %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <div class="form-text">Il mese per cui stai emettendo le fatture.</div>
+        </div>
+
+        <div class="mb-4">
           <label class="form-label fw-bold">📄 Report GTG mensile <span class="text-danger">*</span></label>
           <input type="file" name="gtg_csv" class="form-control" accept=".csv" required>
           <div class="form-text">Il file CSV che ti manda GTG ogni mese (separatore ";")</div>

@@ -107,7 +107,7 @@ def _is_already_billed(nome: str, billed_set: set, threshold: int = 90) -> bool:
 # ── Elaborazione principale ────────────────────────────────────────────────────
 
 def process(gtg_bytes: bytes, gtg_filename: str,
-            storico_bytes=None) -> dict:
+            storico_bytes=None, billing_period: str = "") -> dict:
     """
     Carica e processa i file.
     Restituisce dizionario con tutto il necessario per la pagina di revisione.
@@ -119,12 +119,11 @@ def process(gtg_bytes: bytes, gtg_filename: str,
     if storico_bytes:
         billed_set = load_storico(storico_bytes)
 
-    # Determina periodo dal CSV usando il mese più frequente (non il max,
-    # che può essere distorto da date in formato ambiguo)
-    dates = df["data"].dropna()
-    if not dates.empty:
-        ym = dates.dt.to_period("M")
-        period = str(ym.mode()[0])
+    # Periodo di fatturazione: usa quello scelto dall'utente nel form,
+    # mai derivarlo automaticamente dalle date contratto (inaffidabile)
+    import re as _re
+    if billing_period and _re.match(r'^\d{4}-\d{2}$', billing_period):
+        period = billing_period
     else:
         period = datetime.today().strftime("%Y-%m")
 
