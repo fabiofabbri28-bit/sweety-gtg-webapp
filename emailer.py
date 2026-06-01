@@ -27,8 +27,7 @@ def send_confirmation(period_label: str, totals: dict,
         for c in confirmed
     )
 
-    sales_line = f" – Fattura n. {invoice_sales}" if invoice_sales else ""
-    admin_line = f" – Fattura n. {invoice_admin}" if invoice_admin else ""
+    sales_line = f" | Invoice n. {invoice_sales}" if invoice_sales else ""
 
     body = (
         f"Good morning,\n\n"

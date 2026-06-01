@@ -38,7 +38,9 @@ def _normalize_commercial(df: pd.DataFrame) -> pd.DataFrame:
     df["Stato"] = df["Stato"].str.strip()
     out = pd.DataFrame()
     out["nome"] = df["Cliente"].str.strip()
-    out["indirizzo"] = df.get("Indirizzo", pd.Series(dtype=str)).fillna("").str.strip()
+    out["indirizzo"] = (df["Indirizzo"].fillna("").astype(str).str.strip()
+                        if "Indirizzo" in df.columns
+                        else pd.Series("", index=df.index))
     out["data"] = pd.to_datetime(df["Data Contratto"], dayfirst=True, errors="coerce")
     out["stato_orig"] = df["Stato"]
     out["is_existing"] = df["Stato"].apply(lambda s: s.strip() == "Attivo")

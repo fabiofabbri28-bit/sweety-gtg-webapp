@@ -230,7 +230,7 @@ def confirm(sid: str):
     # Invia email
     email_error = None
     try:
-        period_label = docgen._period_label(data["period"])
+        period_label = docgen._period_label_en(data["period"])
         emailer.send_confirmation(
             period_label, totals, confirmed, docs, master_bytes,
             invoice_sales, invoice_admin)
