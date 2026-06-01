@@ -139,9 +139,9 @@ def process(gtg_bytes: bytes, gtg_filename: str,
     # Raggruppa per nome (più righe = più macchine)
     groups = df[~df["is_existing"]].groupby("nome")
     for nome, grp in groups:
-        if _is_already_billed(nome, billed_set):
+        already_billed = _is_already_billed(nome, billed_set)
+        if already_billed:
             skipped.append(nome)
-            continue
         data_min = grp["data"].min()
         n_macchine = len(grp)
         # Righe individuali per il Lead Register (una per macchina)
@@ -156,12 +156,15 @@ def process(gtg_bytes: bytes, gtg_filename: str,
             "data": data_min.strftime("%d/%m/%Y") if pd.notna(data_min) else "",
             "n_macchine": n_macchine,
             "importo": n_macchine * RATE,
-            "selected": True,
+            "selected": not already_billed,
+            "already_billed": already_billed,
             "rows": rows,
         })
 
     # Ordina per data
     candidates.sort(key=lambda x: x["data"])
+
+    n_is_existing = len(df[df["is_existing"]].groupby("nome")) if df["is_existing"].any() else 0
 
     return {
         "period": period,
@@ -172,6 +175,7 @@ def process(gtg_bytes: bytes, gtg_filename: str,
         "admin_fee": ADMIN_FEE,
         "n_total_gtg": len(df),
         "n_skipped": len(skipped),
+        "n_is_existing": n_is_existing,
     }
 
 

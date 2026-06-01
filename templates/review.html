@@ -5,9 +5,15 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h4 class="mb-0">✏️ Revisione — {{ data.period }}</h4>
-    <small class="text-muted">{{ data.candidates|length }} clienti nuovi &nbsp;|&nbsp;
-    {{ data.n_skipped }} già fatturati (esclusi automaticamente) &nbsp;|&nbsp;
-    {{ data.n_total_gtg }} righe nel report GTG</small>
+    <small class="text-muted">
+      {{ data.candidates|rejectattr('already_billed')|list|length }} clienti nuovi
+      &nbsp;|&nbsp;
+      {% if data.n_skipped > 0 %}
+        {{ data.n_skipped }} già fatturati (visibili, deselezionati — puoi riselezionarli)
+        &nbsp;|&nbsp;
+      {% endif %}
+      {{ data.n_total_gtg }} righe nel report GTG
+    </small>
   </div>
 </div>
 
@@ -23,7 +29,7 @@
             <thead>
               <tr>
                 <th style="width:50px" class="text-center">
-                  <input type="checkbox" id="selectAll" checked title="Seleziona/deseleziona tutti">
+                  <input type="checkbox" id="selectAll" title="Seleziona/deseleziona tutti">
                 </th>
                 <th>Cliente</th>
                 <th class="text-center">Macchine</th>
@@ -32,12 +38,18 @@
             </thead>
             <tbody>
               {% for c in data.candidates %}
-              <tr class="client-row" data-importo="{{ c.importo }}" data-macchine="{{ c.n_macchine }}">
+              <tr class="client-row {% if c.already_billed %}text-muted{% endif %}"
+                  data-importo="{{ c.importo }}" data-macchine="{{ c.n_macchine }}">
                 <td class="text-center align-middle">
                   <input type="checkbox" name="selected" value="{{ c.nome }}"
                          class="client-check" {% if c.selected %}checked{% endif %}>
                 </td>
-                <td class="align-middle">{{ c.nome }}</td>
+                <td class="align-middle">
+                  {{ c.nome }}
+                  {% if c.already_billed %}
+                  <span class="badge bg-secondary ms-1" style="font-size:0.65em">già fatturato</span>
+                  {% endif %}
+                </td>
                 <td class="text-center align-middle">{{ c.n_macchine }}</td>
                 <td class="text-center align-middle">€{{ "{:,}".format(c.importo).replace(",", ".") }}</td>
               </tr>
@@ -54,11 +66,11 @@
         <div class="text-muted small mb-2">RIEPILOGO</div>
         <div class="d-flex justify-content-between mb-1">
           <span>Clienti selezionati</span>
-          <strong id="n_clienti">{{ data.candidates|length }}</strong>
+          <strong id="n_clienti">0</strong>
         </div>
         <div class="d-flex justify-content-between mb-1">
           <span>Macchine</span>
-          <strong id="n_macchine">{{ data.candidates | sum(attribute='n_macchine') }}</strong>
+          <strong id="n_macchine">0</strong>
         </div>
         <hr class="my-2">
         <div class="d-flex justify-content-between mb-1">
@@ -67,7 +79,7 @@
         </div>
         <div class="d-flex justify-content-between mb-1">
           <span>Totale variabile</span>
-          <span id="tot_variabile">€{{ "{:,}".format(data.candidates | sum(attribute='importo')).replace(",",".") }}</span>
+          <span id="tot_variabile">€0</span>
         </div>
         <hr class="my-2">
         <div class="d-flex justify-content-between">
@@ -115,6 +127,13 @@ function updateTotals() {
   document.getElementById('n_macchine').textContent = nMacchine;
   document.getElementById('tot_variabile').textContent = '€' + variabile.toLocaleString('it-IT');
   document.getElementById('tot_sales').textContent = '€' + (variabile + FIXED_FEE).toLocaleString('it-IT');
+
+  // Aggiorna stato selectAll
+  const allChecked = Array.from(checks).every(cb => cb.checked);
+  const anyChecked = Array.from(checks).some(cb => cb.checked);
+  const sa = document.getElementById('selectAll');
+  sa.checked = allChecked;
+  sa.indeterminate = !allChecked && anyChecked;
 }
 
 document.querySelectorAll('.client-check').forEach(cb => cb.addEventListener('change', updateTotals));
