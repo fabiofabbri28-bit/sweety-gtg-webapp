@@ -83,18 +83,8 @@ def _period_full_range(period: str):
 
 
 def _origin_months_text(confirmed: list, period: str) -> str:
-    """Returns English list of unique origin months from confirmed rows."""
-    yms = sorted(set(
-        row_d.get("data_ym", period)
-        for c in (confirmed or [])
-        for row_d in c.get("rows", [])
-    ) or {period})
-    labels = [_data_ym_to_en(ym) for ym in yms]
-    if len(labels) == 1:
-        return labels[0]
-    if len(labels) == 2:
-        return f"{labels[0]} and {labels[1]}"
-    return ", ".join(labels[:-1]) + f" and {labels[-1]}"
+    """Returns the billing period month in English."""
+    return _data_ym_to_en(period)
 
 
 # ── Helpers Word ────────────────────────────────────────────────────────────────
