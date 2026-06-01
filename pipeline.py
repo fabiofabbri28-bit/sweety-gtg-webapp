@@ -43,7 +43,9 @@ def _normalize_commercial(df: pd.DataFrame) -> pd.DataFrame:
                         if addr_col else pd.Series("", index=df.index))
     out["data"] = pd.to_datetime(df["Data Contratto"], dayfirst=True, errors="coerce")
     out["stato_orig"] = df["Stato"]
-    out["is_existing"] = df["Stato"].apply(lambda s: s.strip() == "Attivo")
+    # Non filtrare per stato: nel report GTG tutti i clienti attivi hanno stato "Attivo",
+    # anche i nuovi. L'unica fonte di verità per già-fatturati è lo storico.
+    out["is_existing"] = False
     return out
 
 
@@ -164,8 +166,6 @@ def process(gtg_bytes: bytes, gtg_filename: str,
     # Ordina per data
     candidates.sort(key=lambda x: x["data"])
 
-    n_is_existing = len(df[df["is_existing"]].groupby("nome")) if df["is_existing"].any() else 0
-
     return {
         "period": period,
         "candidates": candidates,
@@ -175,7 +175,6 @@ def process(gtg_bytes: bytes, gtg_filename: str,
         "admin_fee": ADMIN_FEE,
         "n_total_gtg": len(df),
         "n_skipped": len(skipped),
-        "n_is_existing": n_is_existing,
     }
 
 
