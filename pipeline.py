@@ -38,9 +38,9 @@ def _normalize_commercial(df: pd.DataFrame) -> pd.DataFrame:
     df["Stato"] = df["Stato"].str.strip()
     out = pd.DataFrame()
     out["nome"] = df["Cliente"].str.strip()
-    out["indirizzo"] = (df["Indirizzo"].fillna("").astype(str).str.strip()
-                        if "Indirizzo" in df.columns
-                        else pd.Series("", index=df.index))
+    addr_col = next((c for c in df.columns if c.lower() == "indirizzo"), None)
+    out["indirizzo"] = (df[addr_col].fillna("").astype(str).str.strip()
+                        if addr_col else pd.Series("", index=df.index))
     out["data"] = pd.to_datetime(df["Data Contratto"], dayfirst=True, errors="coerce")
     out["stato_orig"] = df["Stato"]
     out["is_existing"] = df["Stato"].apply(lambda s: s.strip() == "Attivo")
@@ -50,6 +50,9 @@ def _normalize_commercial(df: pd.DataFrame) -> pd.DataFrame:
 def _normalize_internal(df: pd.DataFrame) -> pd.DataFrame:
     out = pd.DataFrame()
     out["nome"] = df.get("Nome_Cliente", df.get("Cliente", pd.Series(dtype=str))).str.strip()
+    addr_col = next((c for c in df.columns if c.lower() == "indirizzo"), None)
+    out["indirizzo"] = (df[addr_col].fillna("").astype(str).str.strip()
+                        if addr_col else pd.Series("", index=df.index))
     out["data"] = pd.to_datetime(df.get("Data_Attivazione", df.get("Data Contratto", pd.Series())), errors="coerce")
     out["stato_orig"] = df.get("Stato", "")
     out["is_existing"] = df.get("Stato", "").apply(
