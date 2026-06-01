@@ -77,9 +77,12 @@ def _data_ym_to_en(data_ym: str) -> str:
 
 def _period_full_range(period: str):
     """Returns ('1 May 2026', '31 May 2026') for a YYYY-MM string."""
-    y, m = int(period[:4]), int(period[5:7])
-    last = calendar.monthrange(y, m)[1]
-    return f"1 {MONTHS_EN[m]} {y}", f"{last} {MONTHS_EN[m]} {y}"
+    try:
+        y, m = int(period[:4]), int(period[5:7])
+        last = calendar.monthrange(y, m)[1]
+        return f"1 {MONTHS_EN[m]} {y}", f"{last} {MONTHS_EN[m]} {y}"
+    except Exception:
+        return period, period
 
 
 def _origin_months_text(confirmed: list, period: str) -> str:

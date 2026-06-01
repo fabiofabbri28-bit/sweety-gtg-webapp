@@ -173,8 +173,10 @@ def review(sid: str):
 
     # Suggerisci numero fattura (incrementa automaticamente)
     today = datetime.today()
-    suggested_sales = f"{today.month + 1}/{today.year}"
-    suggested_admin = f"ADM-{today.month + 1:02d}/{today.year}"
+    next_num  = today.month + 1 if today.month < 12 else 1
+    next_year = today.year if today.month < 12 else today.year + 1
+    suggested_sales = f"{next_num}/{next_year}"
+    suggested_admin = f"ADM-{next_num:02d}/{next_year}"
 
     return render_template("review.html",
                            sid=sid,
@@ -202,11 +204,16 @@ def confirm(sid: str):
     totals = pl.compute_totals(data["candidates"], selected_names)
 
     # Genera documenti
-    docs = docgen.generate_all(
-        confirmed, totals, data["period"],
-        invoice_sales, invoice_admin,
-        SWEETY, GTG, ADMIN_CONTACT
-    )
+    try:
+        docs = docgen.generate_all(
+            confirmed, totals, data["period"],
+            invoice_sales, invoice_admin,
+            SWEETY, GTG, ADMIN_CONTACT
+        )
+    except Exception as e:
+        return render_template("upload.html", code=ACCESS_CODE,
+                               billing_months=_billing_months(),
+                               error=f"Errore nella generazione dei documenti: {e}")
 
     # Genera master aggiornato
     storico_bytes = _load_file(sid, "storico.csv")
