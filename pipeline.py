@@ -218,9 +218,11 @@ def generate_updated_master(old_storico_bytes,
                     old_df.columns = old_df.columns.str.strip()
                     for col in ["Legal Name", "Nome_Cliente", "nome"]:
                         if col in old_df.columns:
+                            city_col = next((c for c in old_df.columns if c.lower() in ("city", "indirizzo")), None)
                             for _, row in old_df.iterrows():
                                 rows.append({
                                     "Nome_Cliente": str(row[col]).strip(),
+                                    "City": str(row[city_col]).strip() if city_col else "",
                                     "Periodo_Fatturato": row.get("Periodo_Fatturato", ""),
                                     "Data_Inserimento": row.get("Data_Inserimento", ""),
                                 })
@@ -234,8 +236,14 @@ def generate_updated_master(old_storico_bytes,
     # Aggiungi i nuovi confermati
     today = datetime.today().strftime("%Y-%m-%d")
     for c in confirmed_candidates:
+        # Prendi il primo indirizzo non vuoto tra le macchine del cliente
+        address = next(
+            (r["indirizzo"] for r in c.get("rows", []) if r.get("indirizzo")),
+            ""
+        )
         rows.append({
             "Nome_Cliente": c["nome"],
+            "City": address,
             "Periodo_Fatturato": period,
             "Data_Inserimento": today,
         })
