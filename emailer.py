@@ -22,11 +22,6 @@ def send_confirmation(period_label: str, totals: dict,
     if not RESEND_API_KEY:
         raise ValueError("RESEND_API_KEY non configurata — vai su Render > Environment")
 
-    si_list = "\n".join(
-        f"  - {c['nome']} ({c['n_macchine']} macch. → {c['importo']} EUR)"
-        for c in confirmed
-    )
-
     sales_line = f" | Invoice n. {invoice_sales}" if invoice_sales else ""
 
     body = (
@@ -72,7 +67,7 @@ def send_confirmation(period_label: str, totals: dict,
         RESEND_API_URL,
         headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
         json=payload,
-        timeout=15,
+        timeout=30,
     )
 
     if resp.status_code not in (200, 201):

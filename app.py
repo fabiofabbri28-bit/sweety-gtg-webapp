@@ -201,6 +201,8 @@ def confirm(sid: str):
 
     # Clienti confermati
     confirmed = [c for c in data["candidates"] if c["nome"] in selected_names]
+    if not confirmed:
+        return redirect(_url("review", sid=sid, error="Seleziona almeno un cliente prima di confermare."))
     totals = pl.compute_totals(data["candidates"], selected_names)
 
     # Genera documenti

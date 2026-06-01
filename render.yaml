@@ -17,5 +17,7 @@ services:
         value: "500"
       - key: FIXED_FEE
         value: "1000"
+      - key: ADMIN_FEE
+        value: "300"
       - key: SECRET_KEY
         sync: false

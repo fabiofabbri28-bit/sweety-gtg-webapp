@@ -379,7 +379,7 @@ def generate_activity_summary(totals: dict, period: str,
     # Operational activations row
     _word_cell_text(tbl.cell(2, 0), "Operational activations")
     _word_cell_text(tbl.cell(2, 1), str(totals["macchine"]))
-    _word_cell_text(tbl.cell(2, 2), _fmt_euro(500))
+    _word_cell_text(tbl.cell(2, 2), _fmt_euro(totals.get("rate", 500)))
     _word_cell_text(tbl.cell(2, 3), _fmt_euro(totals["variabile"]))
 
     # Total row

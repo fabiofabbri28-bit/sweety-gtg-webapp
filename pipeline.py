@@ -194,6 +194,7 @@ def compute_totals(candidates: list, selected_names: set) -> dict:
         "fixed_fee": FIXED_FEE,
         "totale_sales": variabile + FIXED_FEE,
         "totale_admin": ADMIN_FEE,
+        "rate": RATE,
     }
 
 

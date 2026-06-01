@@ -15,6 +15,10 @@
   </div>
 </div>
 
+{% if request.args.get('error') %}
+<div class="alert alert-warning">{{ request.args.get('error') }}</div>
+{% endif %}
+
 <form method="post" action="/confirm/{{ sid }}" id="reviewForm">
   <input type="hidden" name="code" value="{{ code }}">
 
